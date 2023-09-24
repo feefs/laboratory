@@ -5,8 +5,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"reflect"
 )
@@ -26,15 +28,35 @@ func init() {
 		ReflectStubFn: func(caller func(string, context.Context, []any, []any) error) any {
 			return main_reflect_stub{caller: caller}
 		},
+		RefData: "⟦8a4fd0d0:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator⟧\n",
+	})
+	codegen.Register(codegen.Registration{
+		Name:  "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator",
+		Iface: reflect.TypeOf((*StrManipulator)(nil)).Elem(),
+		Impl:  reflect.TypeOf(strManipulator{}),
+		LocalStubFn: func(impl any, caller string, tracer trace.Tracer) any {
+			return strManipulator_local_stub{impl: impl.(StrManipulator), tracer: tracer, capitalizeMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator", Method: "Capitalize", Remote: false}), reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator", Method: "Reverse", Remote: false})}
+		},
+		ClientStubFn: func(stub codegen.Stub, caller string) any {
+			return strManipulator_client_stub{stub: stub, capitalizeMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator", Method: "Capitalize", Remote: true}), reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator", Method: "Reverse", Remote: true})}
+		},
+		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
+			return strManipulator_server_stub{impl: impl.(StrManipulator), addLoad: addLoad}
+		},
+		ReflectStubFn: func(caller func(string, context.Context, []any, []any) error) any {
+			return strManipulator_reflect_stub{caller: caller}
+		},
 		RefData: "",
 	})
 }
 
 // weaver.InstanceOf checks.
 var _ weaver.InstanceOf[weaver.Main] = (*app)(nil)
+var _ weaver.InstanceOf[StrManipulator] = (*strManipulator)(nil)
 
 // weaver.Router checks.
 var _ weaver.Unrouted = (*app)(nil)
+var _ weaver.Unrouted = (*strManipulator)(nil)
 
 // Local stub implementations.
 
@@ -46,6 +68,56 @@ type main_local_stub struct {
 // Check that main_local_stub implements the weaver.Main interface.
 var _ weaver.Main = (*main_local_stub)(nil)
 
+type strManipulator_local_stub struct {
+	impl              StrManipulator
+	tracer            trace.Tracer
+	capitalizeMetrics *codegen.MethodMetrics
+	reverseMetrics    *codegen.MethodMetrics
+}
+
+// Check that strManipulator_local_stub implements the StrManipulator interface.
+var _ StrManipulator = (*strManipulator_local_stub)(nil)
+
+func (s strManipulator_local_stub) Capitalize(ctx context.Context, a0 string) (r0 string, err error) {
+	// Update metrics.
+	begin := s.capitalizeMetrics.Begin()
+	defer func() { s.capitalizeMetrics.End(begin, err != nil, 0, 0) }()
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().IsValid() {
+		// Create a child span for this method.
+		ctx, span = s.tracer.Start(ctx, "main.StrManipulator.Capitalize", trace.WithSpanKind(trace.SpanKindInternal))
+		defer func() {
+			if err != nil {
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
+			}
+			span.End()
+		}()
+	}
+
+	return s.impl.Capitalize(ctx, a0)
+}
+
+func (s strManipulator_local_stub) Reverse(ctx context.Context, a0 string) (r0 string, err error) {
+	// Update metrics.
+	begin := s.reverseMetrics.Begin()
+	defer func() { s.reverseMetrics.End(begin, err != nil, 0, 0) }()
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().IsValid() {
+		// Create a child span for this method.
+		ctx, span = s.tracer.Start(ctx, "main.StrManipulator.Reverse", trace.WithSpanKind(trace.SpanKindInternal))
+		defer func() {
+			if err != nil {
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
+			}
+			span.End()
+		}()
+	}
+
+	return s.impl.Reverse(ctx, a0)
+}
+
 // Client stub implementations.
 
 type main_client_stub struct {
@@ -54,6 +126,127 @@ type main_client_stub struct {
 
 // Check that main_client_stub implements the weaver.Main interface.
 var _ weaver.Main = (*main_client_stub)(nil)
+
+type strManipulator_client_stub struct {
+	stub              codegen.Stub
+	capitalizeMetrics *codegen.MethodMetrics
+	reverseMetrics    *codegen.MethodMetrics
+}
+
+// Check that strManipulator_client_stub implements the StrManipulator interface.
+var _ StrManipulator = (*strManipulator_client_stub)(nil)
+
+func (s strManipulator_client_stub) Capitalize(ctx context.Context, a0 string) (r0 string, err error) {
+	// Update metrics.
+	var requestBytes, replyBytes int
+	begin := s.capitalizeMetrics.Begin()
+	defer func() { s.capitalizeMetrics.End(begin, err != nil, requestBytes, replyBytes) }()
+
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().IsValid() {
+		// Create a child span for this method.
+		ctx, span = s.stub.Tracer().Start(ctx, "main.StrManipulator.Capitalize", trace.WithSpanKind(trace.SpanKindClient))
+	}
+
+	defer func() {
+		// Catch and return any panics detected during encoding/decoding/rpc.
+		if err == nil {
+			err = codegen.CatchPanics(recover())
+			if err != nil {
+				err = errors.Join(weaver.RemoteCallError, err)
+			}
+		}
+
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+		span.End()
+
+	}()
+
+	// Preallocate a buffer of the right size.
+	size := 0
+	size += (4 + len(a0))
+	enc := codegen.NewEncoder()
+	enc.Reset(size)
+
+	// Encode arguments.
+	enc.String(a0)
+	var shardKey uint64
+
+	// Call the remote method.
+	requestBytes = len(enc.Data())
+	var results []byte
+	results, err = s.stub.Run(ctx, 0, enc.Data(), shardKey)
+	replyBytes = len(results)
+	if err != nil {
+		err = errors.Join(weaver.RemoteCallError, err)
+		return
+	}
+
+	// Decode the results.
+	dec := codegen.NewDecoder(results)
+	r0 = dec.String()
+	err = dec.Error()
+	return
+}
+
+func (s strManipulator_client_stub) Reverse(ctx context.Context, a0 string) (r0 string, err error) {
+	// Update metrics.
+	var requestBytes, replyBytes int
+	begin := s.reverseMetrics.Begin()
+	defer func() { s.reverseMetrics.End(begin, err != nil, requestBytes, replyBytes) }()
+
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().IsValid() {
+		// Create a child span for this method.
+		ctx, span = s.stub.Tracer().Start(ctx, "main.StrManipulator.Reverse", trace.WithSpanKind(trace.SpanKindClient))
+	}
+
+	defer func() {
+		// Catch and return any panics detected during encoding/decoding/rpc.
+		if err == nil {
+			err = codegen.CatchPanics(recover())
+			if err != nil {
+				err = errors.Join(weaver.RemoteCallError, err)
+			}
+		}
+
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+		span.End()
+
+	}()
+
+	// Preallocate a buffer of the right size.
+	size := 0
+	size += (4 + len(a0))
+	enc := codegen.NewEncoder()
+	enc.Reset(size)
+
+	// Encode arguments.
+	enc.String(a0)
+	var shardKey uint64
+
+	// Call the remote method.
+	requestBytes = len(enc.Data())
+	var results []byte
+	results, err = s.stub.Run(ctx, 1, enc.Data(), shardKey)
+	replyBytes = len(results)
+	if err != nil {
+		err = errors.Join(weaver.RemoteCallError, err)
+		return
+	}
+
+	// Decode the results.
+	dec := codegen.NewDecoder(results)
+	r0 = dec.String()
+	err = dec.Error()
+	return
+}
 
 // Note that "weaver generate" will always generate the error message below.
 // Everything is okay. The error message is only relevant if you see it when
@@ -96,6 +289,76 @@ func (s main_server_stub) GetStubFn(method string) func(ctx context.Context, arg
 	}
 }
 
+type strManipulator_server_stub struct {
+	impl    StrManipulator
+	addLoad func(key uint64, load float64)
+}
+
+// Check that strManipulator_server_stub implements the codegen.Server interface.
+var _ codegen.Server = (*strManipulator_server_stub)(nil)
+
+// GetStubFn implements the codegen.Server interface.
+func (s strManipulator_server_stub) GetStubFn(method string) func(ctx context.Context, args []byte) ([]byte, error) {
+	switch method {
+	case "Capitalize":
+		return s.capitalize
+	case "Reverse":
+		return s.reverse
+	default:
+		return nil
+	}
+}
+
+func (s strManipulator_server_stub) capitalize(ctx context.Context, args []byte) (res []byte, err error) {
+	// Catch and return any panics detected during encoding/decoding/rpc.
+	defer func() {
+		if err == nil {
+			err = codegen.CatchPanics(recover())
+		}
+	}()
+
+	// Decode arguments.
+	dec := codegen.NewDecoder(args)
+	var a0 string
+	a0 = dec.String()
+
+	// TODO(rgrandl): The deferred function above will recover from panics in the
+	// user code: fix this.
+	// Call the local method.
+	r0, appErr := s.impl.Capitalize(ctx, a0)
+
+	// Encode the results.
+	enc := codegen.NewEncoder()
+	enc.String(r0)
+	enc.Error(appErr)
+	return enc.Data(), nil
+}
+
+func (s strManipulator_server_stub) reverse(ctx context.Context, args []byte) (res []byte, err error) {
+	// Catch and return any panics detected during encoding/decoding/rpc.
+	defer func() {
+		if err == nil {
+			err = codegen.CatchPanics(recover())
+		}
+	}()
+
+	// Decode arguments.
+	dec := codegen.NewDecoder(args)
+	var a0 string
+	a0 = dec.String()
+
+	// TODO(rgrandl): The deferred function above will recover from panics in the
+	// user code: fix this.
+	// Call the local method.
+	r0, appErr := s.impl.Reverse(ctx, a0)
+
+	// Encode the results.
+	enc := codegen.NewEncoder()
+	enc.String(r0)
+	enc.Error(appErr)
+	return enc.Data(), nil
+}
+
 // Reflect stub implementations.
 
 type main_reflect_stub struct {
@@ -105,3 +368,19 @@ type main_reflect_stub struct {
 // Check that main_reflect_stub implements the weaver.Main interface.
 var _ weaver.Main = (*main_reflect_stub)(nil)
 
+type strManipulator_reflect_stub struct {
+	caller func(string, context.Context, []any, []any) error
+}
+
+// Check that strManipulator_reflect_stub implements the StrManipulator interface.
+var _ StrManipulator = (*strManipulator_reflect_stub)(nil)
+
+func (s strManipulator_reflect_stub) Capitalize(ctx context.Context, a0 string) (r0 string, err error) {
+	err = s.caller("Capitalize", ctx, []any{a0}, []any{&r0})
+	return
+}
+
+func (s strManipulator_reflect_stub) Reverse(ctx context.Context, a0 string) (r0 string, err error) {
+	err = s.caller("Reverse", ctx, []any{a0}, []any{&r0})
+	return
+}
