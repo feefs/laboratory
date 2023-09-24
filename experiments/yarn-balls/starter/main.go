@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/ServiceWeaver/weaver"
 )
@@ -16,23 +17,38 @@ func main() {
 type app struct {
 	weaver.Implements[weaver.Main]
 	strManipulator weaver.Ref[StrManipulator]
+	listener       weaver.Listener
 }
 
 func serve(ctx context.Context, app *app) error {
-	input := "!界世 olleH"
 
-	manipulator := app.strManipulator.Get()
-	reversed, err := manipulator.Reverse(ctx, input)
-	if err != nil {
-		return err
-	}
+	fmt.Printf("Listener: %v\n", app.listener)
 
-	capitalized, err := manipulator.Capitalize(ctx, reversed)
-	if err != nil {
-		return err
-	}
+	http.HandleFunc("/reverse", func(w http.ResponseWriter, r *http.Request) {
+		word := r.URL.Query().Get("word")
 
-	fmt.Println(capitalized)
+		manipulator := app.strManipulator.Get()
+		reversed, err := manipulator.Reverse(ctx, word)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	return nil
+		fmt.Fprint(w, reversed)
+	})
+
+	http.HandleFunc("/capitalize", func(w http.ResponseWriter, r *http.Request) {
+		word := r.URL.Query().Get("word")
+
+		manipulator := app.strManipulator.Get()
+		capitalized, err := manipulator.Capitalize(ctx, word)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(w, capitalized)
+	})
+
+	return http.Serve(app.listener, nil)
 }

@@ -15,9 +15,10 @@ import (
 
 func init() {
 	codegen.Register(codegen.Registration{
-		Name:  "github.com/ServiceWeaver/weaver/Main",
-		Iface: reflect.TypeOf((*weaver.Main)(nil)).Elem(),
-		Impl:  reflect.TypeOf(app{}),
+		Name:      "github.com/ServiceWeaver/weaver/Main",
+		Iface:     reflect.TypeOf((*weaver.Main)(nil)).Elem(),
+		Impl:      reflect.TypeOf(app{}),
+		Listeners: []string{"listener"},
 		LocalStubFn: func(impl any, caller string, tracer trace.Tracer) any {
 			return main_local_stub{impl: impl.(weaver.Main), tracer: tracer}
 		},
@@ -28,7 +29,7 @@ func init() {
 		ReflectStubFn: func(caller func(string, context.Context, []any, []any) error) any {
 			return main_reflect_stub{caller: caller}
 		},
-		RefData: "⟦8a4fd0d0:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator⟧\n",
+		RefData: "⟦8a4fd0d0:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator⟧\n⟦2248fb79:wEaVeRlIsTeNeRs:github.com/ServiceWeaver/weaver/Main→listener⟧\n",
 	})
 	codegen.Register(codegen.Registration{
 		Name:  "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator",
