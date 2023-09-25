@@ -2,7 +2,9 @@
 binary = "./starter"
 
 [single]
-listeners.listener = { address = "localhost:12345" }
+listeners.listenerA = { address = "localhost:12345" }
+listeners.listenerB = { address = "localhost:12346" }
 
 [multi]
-listeners.listener = { address = "localhost:12345" }
+listeners.listenerA = { address = "localhost:12345" }
+listeners.listenerB = { address = "localhost:12346" }

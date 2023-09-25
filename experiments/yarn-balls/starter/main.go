@@ -17,14 +17,19 @@ func main() {
 type app struct {
 	weaver.Implements[weaver.Main]
 	strManipulator weaver.Ref[StrManipulator]
-	listener       weaver.Listener
+	listenerA      weaver.Listener
+	listenerB      weaver.Listener
 }
 
 func serve(ctx context.Context, app *app) error {
 
-	fmt.Printf("Listener: %v\n", app.listener)
+	fmt.Printf("listenerA: %v\n", app.listenerA)
+	fmt.Printf("listenerB: %v\n", app.listenerB)
 
-	http.HandleFunc("/reverse", func(w http.ResponseWriter, r *http.Request) {
+	muxA := http.NewServeMux()
+	muxB := http.NewServeMux()
+
+	muxA.HandleFunc("/reverse", func(w http.ResponseWriter, r *http.Request) {
 		word := r.URL.Query().Get("word")
 
 		manipulator := app.strManipulator.Get()
@@ -37,7 +42,7 @@ func serve(ctx context.Context, app *app) error {
 		fmt.Fprint(w, reversed)
 	})
 
-	http.HandleFunc("/capitalize", func(w http.ResponseWriter, r *http.Request) {
+	muxB.HandleFunc("/capitalize", func(w http.ResponseWriter, r *http.Request) {
 		word := r.URL.Query().Get("word")
 
 		manipulator := app.strManipulator.Get()
@@ -50,5 +55,19 @@ func serve(ctx context.Context, app *app) error {
 		fmt.Fprint(w, capitalized)
 	})
 
-	return http.Serve(app.listener, nil)
+	errs := make(chan error)
+	go func() {
+		fmt.Println("Serving HTTP requests on listenerA...")
+		if err := http.Serve(app.listenerA, muxA); err != nil {
+			errs <- err
+		}
+	}()
+	go func() {
+		fmt.Println("Serving HTTP requests on listenerB...")
+		if err := http.Serve(app.listenerB, muxB); err != nil {
+			errs <- err
+		}
+	}()
+
+	return <-errs
 }
