@@ -3,3 +3,6 @@ binary = "./starter"
 
 [single]
 listeners.listener = { address = "localhost:12345" }
+
+[multi]
+listeners.listener = { address = "localhost:12345" }
