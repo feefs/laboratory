@@ -22,7 +22,6 @@ type app struct {
 }
 
 func serve(ctx context.Context, app *app) error {
-
 	fmt.Printf("listenerA: %v\n", app.listenerA)
 	fmt.Printf("listenerB: %v\n", app.listenerB)
 
