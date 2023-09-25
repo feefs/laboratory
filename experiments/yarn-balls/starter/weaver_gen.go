@@ -32,9 +32,10 @@ func init() {
 		RefData: "⟦8a4fd0d0:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator⟧\n⟦2248fb79:wEaVeRlIsTeNeRs:github.com/ServiceWeaver/weaver/Main→listener⟧\n",
 	})
 	codegen.Register(codegen.Registration{
-		Name:  "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator",
-		Iface: reflect.TypeOf((*StrManipulator)(nil)).Elem(),
-		Impl:  reflect.TypeOf(strManipulator{}),
+		Name:    "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator",
+		Iface:   reflect.TypeOf((*StrManipulator)(nil)).Elem(),
+		Impl:    reflect.TypeOf(strManipulator{}),
+		NoRetry: []int{1},
 		LocalStubFn: func(impl any, caller string, tracer trace.Tracer) any {
 			return strManipulator_local_stub{impl: impl.(StrManipulator), tracer: tracer, capitalizeMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator", Method: "Capitalize", Remote: false}), reverseMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator", Method: "Reverse", Remote: false})}
 		},
