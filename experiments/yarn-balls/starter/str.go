@@ -15,10 +15,15 @@ type StrManipulator interface {
 
 type strManipulator struct {
 	weaver.Implements[StrManipulator]
+	weaver.WithConfig[strManipulatorConfig]
+}
+
+type strManipulatorConfig struct {
+	InitMessage string `toml:"init_message"`
 }
 
 func (s *strManipulator) Init(_ context.Context) error {
-	fmt.Println("Initialized strManipulator!")
+	fmt.Printf("Initializing strManipulator with init_message=%s\n", s.Config().InitMessage)
 	return nil
 }
 

@@ -1,6 +1,7 @@
 [serviceweaver]
 binary = "./starter"
 
+# Deployers
 [single]
 listeners.listenerA = { address = "localhost:12345" }
 listeners.listenerB = { address = "localhost:12346" }
@@ -8,3 +9,7 @@ listeners.listenerB = { address = "localhost:12346" }
 [multi]
 listeners.listenerA = { address = "localhost:12345" }
 listeners.listenerB = { address = "localhost:12346" }
+
+# Components
+["github.com/feefs/laboratory/experiments/yarn-balls/starter/StrManipulator"]
+init_message = "こんにちは!"
