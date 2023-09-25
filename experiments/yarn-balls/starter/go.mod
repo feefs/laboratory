@@ -1,4 +1,4 @@
-module github.com/feefs/laboratory/experiments/yarn-balls/starter
+module starter
 
 go 1.21.1
 
