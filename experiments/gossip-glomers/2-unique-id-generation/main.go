@@ -15,7 +15,7 @@ type Body struct {
 func main() {
 	node := maelstrom.NewNode()
 
-	ids := make(chan int64)
+	ids := make(chan int64) // Unbuffered channel
 
 	node.Handle("init", func(msg maelstrom.Message) error {
 		intIdStr := node.ID()[1:]
@@ -23,7 +23,8 @@ func main() {
 		if err != nil {
 			return err
 		}
-		// do the first channel send in a new goroutine so this function doesn't block
+
+		// send first int64 to the ids channel in a new goroutine so this function doesn't block
 		go func() {
 			ids <- intId
 		}()
@@ -38,12 +39,13 @@ func main() {
 		}
 
 		id := <-ids
-		body.Id = id
-		body.Type = "generate_ok"
-		// todo: does this need to be in a deferred function???
+		// defer sending the next int64 to the ids channel so this function doesn't block
 		defer func() {
 			ids <- id + int64(len(node.NodeIDs()))
 		}()
+
+		body.Id = id
+		body.Type = "generate_ok"
 
 		return node.Reply(msg, body)
 	})
