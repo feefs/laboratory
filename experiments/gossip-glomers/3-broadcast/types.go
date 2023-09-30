@@ -1,6 +1,8 @@
 package main
 
-import maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+import (
+	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+)
 
 // Internal state
 type state struct {
@@ -19,9 +21,6 @@ type broadcastRespBody struct {
 	maelstrom.MessageBody
 }
 
-type readReqBody struct {
-	maelstrom.MessageBody
-}
 type readRespBody struct {
 	maelstrom.MessageBody
 	Messages []int64 `json:"messages,omitempty"`

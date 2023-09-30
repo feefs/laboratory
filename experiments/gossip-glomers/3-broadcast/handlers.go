@@ -25,11 +25,6 @@ func broadcastHandler(node *maelstrom.Node, nodeState *state) maelstrom.HandlerF
 
 func readHandler(node *maelstrom.Node, nodeState *state) maelstrom.HandlerFunc {
 	return func(msg maelstrom.Message) error {
-		reqBody := &readReqBody{}
-		if err := json.Unmarshal(msg.Body, reqBody); err != nil {
-			return err
-		}
-
 		respBody := &readRespBody{}
 		respBody.Messages = nodeState.Messages
 		respBody.Type = "read_ok"
