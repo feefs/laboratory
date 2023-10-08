@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 
+	"broadcast/lib/handlers/types"
 	"broadcast/lib/state"
-	"broadcast/types"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )

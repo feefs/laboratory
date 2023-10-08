@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
+	"broadcast/lib/handlers/types"
 	"broadcast/lib/state"
 	"broadcast/lib/util"
-	"broadcast/types"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
