@@ -22,17 +22,17 @@ func PropagateHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Ha
 
 		respBody := &types.PropagateRespBody{MessageBody: maelstrom.MessageBody{Type: "propagate_ok"}}
 
-		if nodeState.Propagation.SyncContains(reqBody.PropagateID) {
+		if nodeState.ContainsPropagation(reqBody.PropagationID) {
 			return node.Reply(msg, respBody)
 		}
-		nodeState.Propagation.SyncAdd(reqBody.PropagateID)
+		nodeState.AddPropagation(reqBody.PropagationID)
 
 		nodeState.Messages = append(nodeState.Messages, reqBody.Message)
 
 		propagateReq := &types.PropagateReqBody{
-			MessageBody: maelstrom.MessageBody{Type: "propagate"},
-			Message:     reqBody.Message,
-			PropagateID: reqBody.PropagateID,
+			MessageBody:   maelstrom.MessageBody{Type: "propagate"},
+			Message:       reqBody.Message,
+			PropagationID: reqBody.PropagationID,
 		}
 		wg := sync.WaitGroup{}
 		for _, neighbor := range nodeState.Topology[node.ID()] {

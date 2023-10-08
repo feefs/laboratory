@@ -25,14 +25,14 @@ func BroadcastHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Ha
 			return err
 		}
 		nodeState.Messages = append(nodeState.Messages, reqBody.Message)
-		nodeState.SyncAdd(propagateID)
+		nodeState.AddPropagation(propagateID)
 
 		// propagation goroutine
 		go func() {
 			propagateReq := &types.PropagateReqBody{
-				MessageBody: maelstrom.MessageBody{Type: "propagate"},
-				Message:     reqBody.Message,
-				PropagateID: propagateID,
+				MessageBody:   maelstrom.MessageBody{Type: "propagate"},
+				Message:       reqBody.Message,
+				PropagationID: propagateID,
 			}
 			for _, neighbor := range nodeState.Topology[node.ID()] {
 				nb := neighbor

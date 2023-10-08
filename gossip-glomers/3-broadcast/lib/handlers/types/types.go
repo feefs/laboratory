@@ -17,8 +17,8 @@ type BroadcastRespBody struct {
 
 type PropagateReqBody struct {
 	maelstrom.MessageBody
-	PropagateID state.PropagateID `json:"propagate_id,omitempty"`
-	Message     int64             `json:"message,omitempty"`
+	PropagationID state.PropagationID `json:"propagation_id,omitempty"`
+	Message       int64               `json:"message,omitempty"`
 }
 type PropagateRespBody struct {
 	maelstrom.MessageBody
