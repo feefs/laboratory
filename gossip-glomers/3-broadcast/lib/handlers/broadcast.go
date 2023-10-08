@@ -20,13 +20,9 @@ func BroadcastHandler(node *maelstrom.Node, nodeState *types.State) maelstrom.Ha
 
 		nodeState.Messages = append(nodeState.Messages, reqBody.Message)
 
-		respBody := &types.BroadcastRespBody{MessageBody: maelstrom.MessageBody{Type: "broadcast_ok"}}
-
 		propagateID, err := util.GeneratePropagateID()
 		if err != nil {
-			respBody.Code = maelstrom.Crash
-			respBody.Text = err.Error()
-			return node.Reply(msg, respBody)
+			return err
 		}
 
 		nodeState.Propagated[propagateID] = struct{}{}
@@ -44,9 +40,10 @@ func BroadcastHandler(node *maelstrom.Node, nodeState *types.State) maelstrom.Ha
 		}
 
 		if err := errors.Join(errs...); err != nil {
-			respBody.Code = maelstrom.Crash
-			respBody.Text = err.Error()
+			return err
 		}
+
+		respBody := &types.BroadcastRespBody{MessageBody: maelstrom.MessageBody{Type: "broadcast_ok"}}
 
 		return node.Reply(msg, respBody)
 	}

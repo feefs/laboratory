@@ -39,8 +39,7 @@ func PropagateHandler(node *maelstrom.Node, nodeState *types.State) maelstrom.Ha
 		err := errors.Join(errs...)
 
 		if err != nil {
-			respBody.Code = maelstrom.Crash
-			respBody.Text = err.Error()
+			return err
 		}
 
 		return node.Reply(msg, respBody)
