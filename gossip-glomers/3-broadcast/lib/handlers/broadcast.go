@@ -37,9 +37,9 @@ func BroadcastHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Ha
 			for _, neighbor := range nodeState.Topology[node.ID()] {
 				nb := neighbor
 				go func() {
-					wait := 100 * time.Millisecond
+					wait := 250 * time.Millisecond
 					attempts := 0
-					attempt_limit := 10
+					attempt_limit := 100
 					for attempts < attempt_limit {
 						ctx, cancel := context.WithTimeout(context.Background(), wait)
 						defer cancel()
