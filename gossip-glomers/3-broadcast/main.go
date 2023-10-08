@@ -2,18 +2,14 @@ package main
 
 import (
 	"broadcast/lib/handlers"
-	"broadcast/types"
+	"broadcast/lib/state"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
 func main() {
 	node := maelstrom.NewNode()
-	nodeState := &types.State{
-		Messages:   make([]int64, 0),
-		Topology:   make(types.Topology),
-		Propagated: make(map[types.PropagateID]struct{}),
-	}
+	nodeState := state.NewState()
 
 	node.Handle("broadcast", handlers.BroadcastHandler(node, nodeState))
 	node.Handle("propagate", handlers.PropagateHandler(node, nodeState))

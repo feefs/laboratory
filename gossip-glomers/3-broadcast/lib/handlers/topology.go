@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 
+	"broadcast/lib/state"
 	"broadcast/types"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
-func TopologyHandler(node *maelstrom.Node, nodeState *types.State) maelstrom.HandlerFunc {
+func TopologyHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.HandlerFunc {
 	return func(msg maelstrom.Message) error {
 		reqBody := &types.TopologyReqBody{}
 		if err := json.Unmarshal(msg.Body, reqBody); err != nil {
