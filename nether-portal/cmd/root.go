@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var RootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:           "np",
 	SilenceErrors: true,
 	SilenceUsage:  true,
