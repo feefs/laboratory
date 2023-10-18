@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "soft-serve"
+version = "0.1.0"
+description = ""
+authors = ["feefs <feefs@berkeley.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+diagrams = "^0.23.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
