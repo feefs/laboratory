@@ -14,6 +14,12 @@ func Build() error {
 	return sh.RunV("go", "build", "-o", BINARY)
 }
 
+// Install the binary
+func Install() error {
+	fmt.Println("go install .")
+	return sh.RunV("go", "install", ".")
+}
+
 // Clean artifacts
 func Clean() error {
 	fmt.Printf("rm %s\n", BINARY)
