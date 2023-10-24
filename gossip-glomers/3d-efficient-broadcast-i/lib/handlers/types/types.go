@@ -9,7 +9,8 @@ import (
 // Handlers
 type BroadcastReqBody struct {
 	maelstrom.MessageBody
-	Message int64 `json:"message,omitempty"`
+	PropagationID state.PropagationID `json:"propagation_id"`
+	Message       int64               `json:"message"`
 }
 type BroadcastRespBody struct {
 	maelstrom.MessageBody
@@ -17,8 +18,8 @@ type BroadcastRespBody struct {
 
 type PropagateReqBody struct {
 	maelstrom.MessageBody
-	PropagationID state.PropagationID `json:"propagation_id,omitempty"`
-	Message       int64               `json:"message,omitempty"`
+	PropagationID state.PropagationID `json:"propagation_id"`
+	Message       int64               `json:"message"`
 }
 type PropagateRespBody struct {
 	maelstrom.MessageBody
@@ -31,7 +32,7 @@ type ReadRespBody struct {
 
 type TopologyReqBody struct {
 	maelstrom.MessageBody
-	Topology state.Topology `json:"topology,omitempty"`
+	Topology state.Topology `json:"topology"`
 }
 type TopologyRespBody struct {
 	maelstrom.MessageBody

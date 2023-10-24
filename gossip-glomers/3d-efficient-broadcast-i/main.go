@@ -12,7 +12,6 @@ func main() {
 	nodeState := state.NewState()
 
 	node.Handle("broadcast", handlers.BroadcastHandler(node, nodeState))
-	node.Handle("propagate", handlers.PropagateHandler(node, nodeState))
 	node.Handle("read", handlers.ReadHandler(node, nodeState))
 	node.Handle("topology", handlers.TopologyHandler(node, nodeState))
 

@@ -16,7 +16,18 @@ func TopologyHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Han
 			return err
 		}
 
-		nodeState.Topology = reqBody.Topology
+		nodes := []string{}
+		if node.ID() == "n0" {
+			for _, nid := range node.NodeIDs() {
+				if nid == "n0" {
+					continue
+				}
+				nodes = append(nodes, nid)
+			}
+		} else {
+			nodes = append(nodes, "n0")
+		}
+		nodeState.Topology = state.Topology{node.ID(): nodes}
 
 		respBody := &types.TopologyRespBody{MessageBody: maelstrom.MessageBody{Type: "topology_ok"}}
 
