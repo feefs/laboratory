@@ -27,7 +27,7 @@ func PropagateHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Ha
 		}
 		nodeState.AddPropagation(reqBody.PropagationID)
 
-		nodeState.Messages = append(nodeState.Messages, reqBody.Message)
+		nodeState.AppendMessage(reqBody.Message)
 
 		propagateReq := &types.PropagateReqBody{
 			MessageBody:   maelstrom.MessageBody{Type: "propagate"},

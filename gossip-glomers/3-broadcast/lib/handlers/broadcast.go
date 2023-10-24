@@ -24,7 +24,7 @@ func BroadcastHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Ha
 		if err != nil {
 			return err
 		}
-		nodeState.Messages = append(nodeState.Messages, reqBody.Message)
+		nodeState.AppendMessage(reqBody.Message)
 		nodeState.AddPropagation(propagateID)
 
 		// propagation goroutine

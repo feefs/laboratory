@@ -9,9 +9,28 @@ type Topology map[string][]string
 type PropagationID string
 
 type State struct {
-	Messages []int64  `json:"messages,omitempty"`
 	Topology Topology `json:"topology,omitempty"`
+	*messages
 	*propagations
+}
+
+type messages struct {
+	mu       sync.Mutex
+	messages []int64
+}
+
+func (m *messages) AppendMessage(message int64) {
+	m.mu.Lock()
+	m.messages = append(m.messages, message)
+	m.mu.Unlock()
+}
+
+func (m *messages) ReadMessages() []int64 {
+	m.mu.Lock()
+	result := make([]int64, len(m.messages))
+	copy(result, m.messages)
+	m.mu.Unlock()
+	return result
 }
 
 type propagations struct {
@@ -34,7 +53,9 @@ func (p *propagations) AddPropagation(id PropagationID) {
 
 func NewState() *State {
 	return &State{
-		Messages: make([]int64, 0),
+		messages: &messages{
+			messages: []int64{},
+		},
 		Topology: make(Topology),
 		propagations: &propagations{
 			set: make(map[PropagationID]struct{}),

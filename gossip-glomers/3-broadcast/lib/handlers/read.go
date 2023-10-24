@@ -11,7 +11,7 @@ func ReadHandler(node *maelstrom.Node, nodeState *state.State) maelstrom.Handler
 	return func(msg maelstrom.Message) error {
 		respBody := &types.ReadRespBody{
 			MessageBody: maelstrom.MessageBody{Type: "read_ok"},
-			Messages:    nodeState.Messages,
+			Messages:    nodeState.ReadMessages(),
 		}
 
 		return node.Reply(msg, respBody)
