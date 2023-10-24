@@ -1,19 +1,18 @@
 package main
 
 import (
-	"broadcast/lib/handlers"
-	"broadcast/lib/state"
+	"broadcast/server"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
 func main() {
 	node := maelstrom.NewNode()
-	nodeState := state.NewState()
+	server := server.NewServer(node)
 
-	node.Handle("broadcast", handlers.BroadcastHandler(node, nodeState))
-	node.Handle("read", handlers.ReadHandler(node, nodeState))
-	node.Handle("topology", handlers.TopologyHandler(node, nodeState))
+	node.Handle("broadcast", server.BroadcastHandler)
+	node.Handle("read", server.ReadHandler)
+	node.Handle("topology", server.TopologyHandler)
 
 	if err := node.Run(); err != nil {
 		panic(err)

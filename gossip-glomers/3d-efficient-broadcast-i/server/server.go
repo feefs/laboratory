@@ -1,8 +1,17 @@
-package state
+package server
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"sync"
+
+	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
+
+type Server struct {
+	state *State
+	node  *maelstrom.Node
+}
 
 type Topology map[string][]string
 type PropagationID string
@@ -50,14 +59,27 @@ func (p *propagations) AddPropagation(id PropagationID) {
 	p.mu.Unlock()
 }
 
-func NewState() *State {
-	return &State{
-		Topology: make(Topology),
-		messages: &messages{
-			messages: []int64{},
-		},
-		propagations: &propagations{
-			set: make(map[PropagationID]struct{}),
+func NewServer(node *maelstrom.Node) *Server {
+	return &Server{
+		node: node,
+		state: &State{
+			Topology: make(Topology),
+			messages: &messages{
+				messages: []int64{},
+			},
+			propagations: &propagations{
+				set: make(map[PropagationID]struct{}),
+			},
 		},
 	}
+}
+
+func GeneratePropagateID() (PropagationID, error) {
+	b := make([]byte, 8)
+	_, err := rand.Read(b[:])
+	if err != nil {
+		return "", err
+	}
+
+	return PropagationID(base64.StdEncoding.EncodeToString(b)), nil
 }
