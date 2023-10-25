@@ -10,7 +10,9 @@ func main() {
 	node := maelstrom.NewNode()
 	server := server.NewServer(node)
 
+	node.Handle("init", server.InitHandler)
 	node.Handle("broadcast", server.BroadcastHandler)
+	node.Handle("propagate", server.PropagateHandler)
 	node.Handle("read", server.ReadHandler)
 	node.Handle("topology", server.TopologyHandler)
 
