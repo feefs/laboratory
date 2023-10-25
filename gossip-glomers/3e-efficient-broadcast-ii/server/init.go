@@ -2,6 +2,7 @@ package server
 
 import (
 	"broadcast/server/rpc"
+	"broadcast/server/state"
 	"log"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 )
 
 func (s *Server) InitHandler(msg maelstrom.Message) error {
-	if s.node.ID() == "n0" {
+	if s.Node.ID() == "n0" {
 		go s.batchPropagate(150 * time.Millisecond)
 	}
 	return nil
@@ -26,37 +27,37 @@ func (s *Server) batchPropagate(freq time.Duration) {
 
 	for {
 		select {
-		case message := <-s.state.input:
-			s.state.batch.buffer = append(s.state.batch.buffer, message)
+		case message := <-s.State.Batch.Input:
+			s.State.Batch.Buffer = append(s.State.Batch.Buffer, message)
 		case <-tick:
 			// optimization: don't propagate if buffer is empty
-			if len(s.state.batch.buffer) > 0 {
+			if len(s.State.Batch.Buffer) > 0 {
 				s.propagate()
-				s.state.batch.buffer = []int64{}
+				s.State.Batch.Buffer = []int64{}
 			}
 		}
 	}
 }
 
 func (s *Server) propagate() {
-	id, err := GeneratePropagateID()
+	id, err := state.GeneratePropagateID()
 	if err != nil {
 		log.Printf("Unable to generate Propagation ID: %v", err)
 		return
 	}
 
-	messages := make([]int64, len(s.state.batch.buffer))
-	copy(messages, s.state.batch.buffer)
+	messages := make([]int64, len(s.State.Batch.Buffer))
+	copy(messages, s.State.Batch.Buffer)
 
 	propagateReq := &PropagateReqBody{
 		MessageBody:   maelstrom.MessageBody{Type: "propagate"},
 		PropagationID: id,
 		Messages:      messages,
 	}
-	for _, nid := range s.node.NodeIDs() {
+	for _, nid := range s.Node.NodeIDs() {
 		if nid == "n0" {
 			continue
 		}
-		go rpc.Retry(s.node, nid, propagateReq)
+		go rpc.Retry(s.Node, nid, propagateReq)
 	}
 }

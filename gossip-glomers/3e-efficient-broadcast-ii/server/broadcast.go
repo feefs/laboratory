@@ -2,6 +2,7 @@ package server
 
 import (
 	"broadcast/server/rpc"
+	"broadcast/server/state"
 	"encoding/json"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
@@ -9,8 +10,8 @@ import (
 
 type BroadcastReqBody struct {
 	maelstrom.MessageBody
-	BroadcastID BroadcastID `json:"broadcast_id"` // Non-empty if coming from a child node
-	Message     int64       `json:"message"`
+	BroadcastID state.BroadcastID `json:"broadcast_id"` // Non-empty if coming from a child node
+	Message     int64             `json:"message"`
 }
 
 func (s *Server) BroadcastHandler(msg maelstrom.Message) (err error) {
@@ -18,7 +19,7 @@ func (s *Server) BroadcastHandler(msg maelstrom.Message) (err error) {
 		if err != nil {
 			return
 		}
-		err = s.node.Reply(msg, &maelstrom.MessageBody{Type: "broadcast_ok"})
+		err = s.Node.Reply(msg, &maelstrom.MessageBody{Type: "broadcast_ok"})
 	}()
 
 	reqBody := &BroadcastReqBody{}
@@ -26,7 +27,7 @@ func (s *Server) BroadcastHandler(msg maelstrom.Message) (err error) {
 		return err
 	}
 
-	if s.node.ID() != "n0" {
+	if s.Node.ID() != "n0" {
 		return s.handleBroadcastChild(reqBody)
 	} else {
 		return s.handleBroadcastParent(reqBody)
@@ -34,7 +35,7 @@ func (s *Server) BroadcastHandler(msg maelstrom.Message) (err error) {
 }
 
 func (s *Server) handleBroadcastChild(reqBody *BroadcastReqBody) error {
-	id, err := GenerateBroadcastID()
+	id, err := state.GenerateBroadcastID()
 	if err != nil {
 		return err
 	}
@@ -44,22 +45,22 @@ func (s *Server) handleBroadcastChild(reqBody *BroadcastReqBody) error {
 		BroadcastID: id,
 		Message:     reqBody.Message,
 	}
-	go rpc.Retry(s.node, "n0", broadcastReq)
+	go rpc.Retry(s.Node, "n0", broadcastReq)
 
 	return nil
 }
 
 func (s *Server) handleBroadcastParent(reqBody *BroadcastReqBody) error {
 	if reqBody.BroadcastID != "" {
-		if s.state.HasBroadcastID(reqBody.BroadcastID) {
+		if s.State.HasBroadcastID(reqBody.BroadcastID) {
 			return nil
 		}
-		s.state.AddBroadcastID(reqBody.BroadcastID)
+		s.State.AddBroadcastID(reqBody.BroadcastID)
 	}
 
-	s.state.AppendMessages(reqBody.Message)
+	s.State.AppendMessages(reqBody.Message)
 
-	s.state.batch.input <- reqBody.Message
+	s.State.Batch.Input <- reqBody.Message
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"broadcast/server/state"
 	"encoding/json"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
@@ -8,8 +9,8 @@ import (
 
 type PropagateReqBody struct {
 	maelstrom.MessageBody
-	PropagationID PropagationID `json:"propagation_id"`
-	Messages      []int64       `json:"messages"`
+	PropagationID state.PropagationID `json:"propagation_id"`
+	Messages      []int64             `json:"messages"`
 }
 
 func (s *Server) PropagateHandler(msg maelstrom.Message) (err error) {
@@ -17,7 +18,7 @@ func (s *Server) PropagateHandler(msg maelstrom.Message) (err error) {
 		if err != nil {
 			return
 		}
-		err = s.node.Reply(msg, &maelstrom.MessageBody{Type: "propagate_ok"})
+		err = s.Node.Reply(msg, &maelstrom.MessageBody{Type: "propagate_ok"})
 	}()
 
 	reqBody := &PropagateReqBody{}
@@ -25,12 +26,12 @@ func (s *Server) PropagateHandler(msg maelstrom.Message) (err error) {
 		return err
 	}
 
-	if s.state.HasPropagationID(reqBody.PropagationID) {
+	if s.State.HasPropagationID(reqBody.PropagationID) {
 		return nil
 	}
-	s.state.AddPropagationID(reqBody.PropagationID)
+	s.State.AddPropagationID(reqBody.PropagationID)
 
-	s.state.AppendMessages(reqBody.Messages...)
+	s.State.AppendMessages(reqBody.Messages...)
 
 	return nil
 }

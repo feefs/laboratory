@@ -12,8 +12,8 @@ type ReadRespBody struct {
 func (s *Server) ReadHandler(msg maelstrom.Message) (err error) {
 	respBody := ReadRespBody{
 		MessageBody: maelstrom.MessageBody{Type: "read_ok"},
-		Messages:    s.state.ReadMessages(),
+		Messages:    s.State.ReadMessages(),
 	}
 
-	return s.node.Reply(msg, respBody)
+	return s.Node.Reply(msg, respBody)
 }
