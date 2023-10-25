@@ -27,10 +27,13 @@ func (s *Server) batchPropagate(freq time.Duration) {
 	for {
 		select {
 		case message := <-s.state.input:
-			s.state.batch.messages = append(s.state.batch.messages, message)
+			s.state.batch.buffer = append(s.state.batch.buffer, message)
 		case <-tick:
-			s.propagate()
-			s.state.batch.messages = []int64{}
+			// optimization: don't propagate if buffer is empty
+			if len(s.state.batch.buffer) > 0 {
+				s.propagate()
+				s.state.batch.buffer = []int64{}
+			}
 		}
 	}
 }
@@ -42,8 +45,8 @@ func (s *Server) propagate() {
 		return
 	}
 
-	messages := make([]int64, len(s.state.batch.messages))
-	copy(messages, s.state.batch.messages)
+	messages := make([]int64, len(s.state.batch.buffer))
+	copy(messages, s.state.batch.buffer)
 
 	propagateReq := &PropagateReqBody{
 		MessageBody:   maelstrom.MessageBody{Type: "propagate"},

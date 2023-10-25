@@ -26,8 +26,8 @@ type State struct {
 }
 
 type batch struct {
-	input    chan int64
-	messages []int64
+	input  chan int64
+	buffer []int64
 }
 
 type messages struct {
@@ -91,8 +91,8 @@ func NewServer(node *maelstrom.Node) *Server {
 		state: &State{
 			Topology: make(Topology),
 			batch: &batch{
-				input:    make(chan int64),
-				messages: []int64{},
+				input:  make(chan int64),
+				buffer: []int64{},
 			},
 			messages: &messages{
 				messages: []int64{},
