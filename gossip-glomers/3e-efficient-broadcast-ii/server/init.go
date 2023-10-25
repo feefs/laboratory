@@ -11,7 +11,8 @@ import (
 
 func (s *Server) InitHandler(msg maelstrom.Message) error {
 	if s.Node.ID() == "n0" {
-		go s.batchPropagate(150 * time.Millisecond)
+		// setting the batch frequency to a little above the hardcoded network delay results in the lowest latency
+		go s.batchPropagate(110 * time.Millisecond)
 	}
 	return nil
 }
@@ -30,7 +31,7 @@ func (s *Server) batchPropagate(freq time.Duration) {
 		case message := <-s.State.Batch.Input:
 			s.State.Batch.Buffer = append(s.State.Batch.Buffer, message)
 		case <-tick:
-			// optimization: don't propagate if buffer is empty
+			// optimization: don't propagate if the batch buffer is empty
 			if len(s.State.Batch.Buffer) > 0 {
 				s.propagate()
 				s.State.Batch.Buffer = []int64{}
