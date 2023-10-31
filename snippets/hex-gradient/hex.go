@@ -44,3 +44,15 @@ func RGBFromHex(s string) (RGB, error) {
 
 	return RGB{uint8(red), uint8(green), uint8(blue)}, nil
 }
+
+// https://notes.burke.libbey.me/ansi-escape-codes/
+
+const escape = "\x1b"
+const controlSequenceIntroducer = escape + "["
+const setGraphicsRendition = "m"
+const reset = controlSequenceIntroducer + "0" + setGraphicsRendition
+
+func (rgb RGB) Colorize(s string) string {
+	args := fmt.Sprintf("38;2;%v;%v;%v", rgb.red, rgb.green, rgb.blue)
+	return controlSequenceIntroducer + args + setGraphicsRendition + s + reset
+}
