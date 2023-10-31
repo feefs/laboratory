@@ -56,3 +56,18 @@ func (rgb RGB) Colorize(s string) string {
 	args := fmt.Sprintf("38;2;%v;%v;%v", rgb.red, rgb.green, rgb.blue)
 	return controlSequenceIntroducer + args + setGraphicsRendition + s + reset
 }
+
+func (rgb RGB) Interpolate(rgb2 RGB, proportion float64) RGB {
+	if proportion < 0 {
+		proportion = 0
+	}
+	if proportion > 1 {
+		proportion = 1
+	}
+
+	red := uint8((1-proportion)*float64(rgb.red)) + uint8(proportion*float64(rgb2.red))
+	green := uint8((1-proportion)*float64(rgb.green)) + uint8(proportion*float64(rgb2.green))
+	blue := uint8((1-proportion)*float64(rgb.blue)) + uint8(proportion*float64(rgb2.blue))
+
+	return RGB{red, green, blue}
+}
