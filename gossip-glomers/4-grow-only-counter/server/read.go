@@ -26,16 +26,9 @@ func (s *Server) ReadHandler(msg maelstrom.Message) error {
 }
 
 func (s *Server) handleReadNode(msg maelstrom.Message) error {
-	ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
-	defer cancel()
-	v, err := s.kv.ReadInt(ctx, s.node.ID()) // Returned value is sequentially consistent, no synchronization needed
+	v, err := s.ReadIntWithDefault(s.node.ID())
 	if err != nil {
-		reqErr := &maelstrom.RPCError{}
-		if errors.As(err, &reqErr) && reqErr.Code == maelstrom.KeyDoesNotExist {
-			v = 0
-		} else {
-			return err
-		}
+		return err
 	}
 
 	respBody := &ReadRespBody{
@@ -47,16 +40,9 @@ func (s *Server) handleReadNode(msg maelstrom.Message) error {
 }
 
 func (s *Server) handleReadClient(msg maelstrom.Message) error {
-	ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
-	defer cancel()
-	v, err := s.kv.ReadInt(ctx, s.node.ID()) // Returned value is sequentially consistent, no synchronization needed
+	v, err := s.ReadIntWithDefault(s.node.ID())
 	if err != nil {
-		reqErr := &maelstrom.RPCError{}
-		if errors.As(err, &reqErr) && reqErr.Code == maelstrom.KeyDoesNotExist {
-			v = 0
-		} else {
-			return err
-		}
+		return err
 	}
 
 	total := v
@@ -64,16 +50,9 @@ func (s *Server) handleReadClient(msg maelstrom.Message) error {
 		if id == s.node.ID() {
 			continue
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
-		defer cancel()
-		v, err := s.kv.ReadInt(ctx, id)
+		v, err := s.ReadIntWithDefault(id)
 		if err != nil {
-			reqErr := &maelstrom.RPCError{}
-			if errors.As(err, &reqErr) && reqErr.Code == maelstrom.KeyDoesNotExist {
-				v = 0
-			} else {
-				return err
-			}
+			return err
 		}
 		total += v
 	}
@@ -84,4 +63,17 @@ func (s *Server) handleReadClient(msg maelstrom.Message) error {
 	}
 
 	return s.node.Reply(msg, respBody)
+}
+
+func (s *Server) ReadIntWithDefault(key string) (int, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
+	defer cancel()
+	v, err := s.kv.ReadInt(ctx, key) // Returned value is sequentially consistent, no synchronization needed
+
+	reqErr := &maelstrom.RPCError{}
+	if errors.As(err, &reqErr) && reqErr.Code == maelstrom.KeyDoesNotExist {
+		return 0, nil
+	} else {
+		return v, err
+	}
 }
