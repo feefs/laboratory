@@ -12,7 +12,7 @@ type ReadRespBody struct {
 	Value int `json:"value"`
 }
 
-func (s *Server) ReadHandler(msg maelstrom.Message) error {
+func (s *server) ReadHandler(msg maelstrom.Message) error {
 	if len(msg.Src) == 0 {
 		return errors.New("empty caller type")
 	}
@@ -25,7 +25,7 @@ func (s *Server) ReadHandler(msg maelstrom.Message) error {
 	return errors.New("unknown caller type")
 }
 
-func (s *Server) handleReadNode(msg maelstrom.Message) error {
+func (s *server) handleReadNode(msg maelstrom.Message) error {
 	v, err := s.ReadIntWithDefault(s.node.ID())
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (s *Server) handleReadNode(msg maelstrom.Message) error {
 	return s.node.Reply(msg, respBody)
 }
 
-func (s *Server) handleReadClient(msg maelstrom.Message) error {
+func (s *server) handleReadClient(msg maelstrom.Message) error {
 	v, err := s.ReadIntWithDefault(s.node.ID())
 	if err != nil {
 		return err
@@ -65,7 +65,7 @@ func (s *Server) handleReadClient(msg maelstrom.Message) error {
 	return s.node.Reply(msg, respBody)
 }
 
-func (s *Server) ReadIntWithDefault(key string) (int, error) {
+func (s *server) ReadIntWithDefault(key string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
 	defer cancel()
 	v, err := s.kv.ReadInt(ctx, key) // Returned value is sequentially consistent, no synchronization needed

@@ -12,7 +12,7 @@ type AddReqBody struct {
 	Delta int `json:"delta"`
 }
 
-func (s *Server) AddHandler(msg maelstrom.Message) error {
+func (s *server) AddHandler(msg maelstrom.Message) error {
 	reqBody := &AddReqBody{}
 	if err := json.Unmarshal(msg.Body, reqBody); err != nil {
 		return err
@@ -22,7 +22,7 @@ func (s *Server) AddHandler(msg maelstrom.Message) error {
 	s.kvmu.Lock()
 	ctx, cancel := context.WithTimeout(context.Background(), rpcTimeout)
 	defer cancel()
-	i, err := s.kv.ReadInt(ctx, s.node.ID())
+	value, err := s.kv.ReadInt(ctx, s.node.ID())
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (s *Server) AddHandler(msg maelstrom.Message) error {
 
 	ctx, cancel = context.WithTimeout(context.Background(), rpcTimeout)
 	defer cancel()
-	err = s.kv.Write(ctx, s.node.ID(), i+reqBody.Delta)
+	err = s.kv.Write(ctx, s.node.ID(), value+reqBody.Delta)
 	if err != nil {
 		return err
 	}

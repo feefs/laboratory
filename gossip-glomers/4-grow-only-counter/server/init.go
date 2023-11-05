@@ -7,7 +7,7 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
-func (s *Server) InitHandler(msg maelstrom.Message) error {
+func (s *server) InitHandler(msg maelstrom.Message) error {
 	attempts := 0
 	attempt_limit := 10
 	for attempts < attempt_limit {

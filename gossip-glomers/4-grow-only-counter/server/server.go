@@ -9,12 +9,12 @@ import (
 
 const rpcTimeout = 100 * time.Millisecond
 
-type Server struct {
+type server struct {
 	node *maelstrom.Node
 	kv   *maelstrom.KV
 	kvmu sync.Mutex
 }
 
-func NewServer(node *maelstrom.Node, kv *maelstrom.KV) *Server {
-	return &Server{node: node, kv: kv}
+func NewServer(node *maelstrom.Node, kv *maelstrom.KV) *server {
+	return &server{node: node, kv: kv}
 }
