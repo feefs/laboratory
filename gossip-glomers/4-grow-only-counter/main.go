@@ -1,9 +1,19 @@
 package main
 
-import maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+import (
+	"counter/server"
+
+	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+)
 
 func main() {
 	node := maelstrom.NewNode()
+	kv := maelstrom.NewSeqKV(node)
+	server := server.NewServer(node, kv)
+
+	node.Handle("init", server.InitHandler)
+	node.Handle("add", server.AddHandler)
+	node.Handle("read", server.ReadHandler)
 
 	if err := node.Run(); err != nil {
 		panic(err)
