@@ -15,3 +15,6 @@ test:
 	$(MAKE) test3c
 debug:
 	~/.maelstrom/maelstrom serve
+clean:
+	rm broadcast
+	rm -rf store

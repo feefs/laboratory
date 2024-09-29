@@ -11,3 +11,6 @@ test:
 	$(MAKE) test3dnem
 debug:
 	~/.maelstrom/maelstrom serve
+clean:
+	rm broadcast
+	rm -rf store

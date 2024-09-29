@@ -5,3 +5,6 @@ test: build
 		--time-limit 20 --rate 100 --nemesis partition
 debug:
 	~/.maelstrom/maelstrom serve
+clean:
+	rm counter
+	rm -rf store

@@ -5,3 +5,6 @@ test: build
 		--time-limit 20 --rate 1000 --concurrency 2n
 debug:
 	~/.maelstrom/maelstrom serve
+clean:
+	rm kafka
+	rm -rf store
