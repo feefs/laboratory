@@ -1,6 +1,10 @@
 package server
 
-import maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+import (
+	"encoding/json"
+
+	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+)
 
 type ListCommittedOffsetsReqBody struct {
 	maelstrom.MessageBody
@@ -8,9 +12,29 @@ type ListCommittedOffsetsReqBody struct {
 }
 type ListCommittedOffsetsRespBody struct {
 	maelstrom.MessageBody
-	Offsets offsets `json:"offsets"`
+	Offsets map[string]int `json:"offsets"`
 }
 
 func (s *server) ListCommittedOffsetsHandler(msg maelstrom.Message) error {
-	return ErrNotImplemented
+	reqBody := &ListCommittedOffsetsReqBody{}
+	if err := json.Unmarshal(msg.Body, reqBody); err != nil {
+		return err
+	}
+
+	result := make(map[string]int)
+
+	s.committedOffsetsMu.Lock()
+	for _, key := range reqBody.Keys {
+		if offset, ok := s.committedOffsets[key]; ok {
+			result[key] = offset
+		}
+	}
+	s.committedOffsetsMu.Unlock()
+
+	respBody := &ListCommittedOffsetsRespBody{
+		MessageBody: maelstrom.MessageBody{Type: "list_committed_offsets_ok"},
+		Offsets:     result,
+	}
+
+	return s.node.Reply(msg, respBody)
 }
