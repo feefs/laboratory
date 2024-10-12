@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"sync"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
@@ -45,15 +46,41 @@ func (s *server) handleReadClient(msg maelstrom.Message) error {
 		return err
 	}
 
+	type result struct {
+		value int
+		err   error
+	}
+	// resultsChan must be buffered. otherwise, there will be a deadlock
+	// when the goroutines block on sending and never call wg.Done()
+	resultsChan := make(chan result, len(s.node.NodeIDs())-1)
+
+	var wg sync.WaitGroup
 	for _, id := range s.node.NodeIDs() {
 		if id == s.node.ID() {
 			continue
 		}
-		v, err := s.ReadIntWithDefault(id)
-		if err != nil {
-			return err
+		wg.Add(1)
+		go func(nodeId string) {
+			v, err := s.ReadIntWithDefault(nodeId)
+			resultsChan <- result{value: v, err: err}
+			wg.Done()
+		}(id)
+	}
+	wg.Wait()
+	// buffered channels must be closed before iterating over them.
+	// otherwise, gathering results will loop forever.
+	close(resultsChan)
+
+	results := []result{}
+	for result := range resultsChan {
+		results = append(results, result)
+	}
+
+	for _, result := range results {
+		if result.err != nil {
+			return result.err
 		}
-		total += v
+		total += result.value
 	}
 
 	respBody := &ReadRespBody{

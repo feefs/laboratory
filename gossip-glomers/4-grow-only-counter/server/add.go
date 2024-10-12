@@ -18,7 +18,7 @@ func (s *server) AddHandler(msg maelstrom.Message) error {
 		return err
 	}
 
-	doneChan := make(chan error)
+	errChan := make(chan error)
 	go func() {
 		var doneErr error
 		for {
@@ -43,10 +43,10 @@ func (s *server) AddHandler(msg maelstrom.Message) error {
 				break
 			}
 		}
-		doneChan <- doneErr
+		errChan <- doneErr
 	}()
 
-	if err := <-doneChan; err != nil {
+	if err := <-errChan; err != nil {
 		return err
 	}
 
