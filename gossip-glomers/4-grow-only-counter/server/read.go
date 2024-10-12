@@ -40,12 +40,11 @@ func (s *server) handleReadNode(msg maelstrom.Message) error {
 }
 
 func (s *server) handleReadClient(msg maelstrom.Message) error {
-	v, err := s.ReadIntWithDefault(s.node.ID())
+	total, err := s.ReadIntWithDefault(s.node.ID())
 	if err != nil {
 		return err
 	}
 
-	total := v
 	for _, id := range s.node.NodeIDs() {
 		if id == s.node.ID() {
 			continue
@@ -70,8 +69,7 @@ func (s *server) ReadIntWithDefault(key string) (int, error) {
 	defer cancel()
 	v, err := s.kv.ReadInt(ctx, key) // Returned value is sequentially consistent, no synchronization needed
 
-	reqErr := &maelstrom.RPCError{}
-	if errors.As(err, &reqErr) && reqErr.Code == maelstrom.KeyDoesNotExist {
+	if maelstrom.ErrorCode(err) == maelstrom.KeyDoesNotExist {
 		return 0, nil
 	} else {
 		return v, err

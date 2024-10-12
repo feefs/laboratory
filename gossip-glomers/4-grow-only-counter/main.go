@@ -11,7 +11,6 @@ func main() {
 	kv := maelstrom.NewSeqKV(node)
 	server := server.NewServer(node, kv)
 
-	node.Handle("init", server.InitHandler)
 	node.Handle("add", server.AddHandler)
 	node.Handle("read", server.ReadHandler)
 
