@@ -6,23 +6,24 @@ import (
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
 
-type Body struct {
+type EchoReqBody struct {
 	maelstrom.MessageBody
-	Echo string `json:"echo,omitempty"`
+	Echo string `json:"echo"`
+}
+type EchoRespBody struct {
+	maelstrom.MessageBody
+	Echo string `json:"echo"`
 }
 
 func main() {
 	node := maelstrom.NewNode()
 
 	node.Handle("echo", func(msg maelstrom.Message) error {
-		body := &Body{}
-		if err := json.Unmarshal(msg.Body, body); err != nil {
+		reqBody := &EchoReqBody{}
+		if err := json.Unmarshal(msg.Body, reqBody); err != nil {
 			return err
 		}
-
-		body.Type = "echo_ok"
-
-		return node.Reply(msg, body)
+		return node.Reply(msg, &EchoRespBody{maelstrom.MessageBody{Type: "echo_ok"}, reqBody.Echo})
 	})
 
 	if err := node.Run(); err != nil {
