@@ -60,11 +60,11 @@ func (s *server) handleReadClient(msg maelstrom.Message) error {
 			continue
 		}
 		wg.Add(1)
-		go func(nodeId string) {
-			v, err := s.ReadIntWithDefault(nodeId)
+		go func() {
+			v, err := s.ReadIntWithDefault(id)
 			resultsChan <- result{value: v, err: err}
 			wg.Done()
-		}(id)
+		}()
 	}
 	wg.Wait()
 	// buffered channels must be closed before iterating over them.
