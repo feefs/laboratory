@@ -3,6 +3,13 @@
 output_path=/tmp/maelstrom-test-all-output-$(date +"%H-%M-%S")
 echo -e "\033[0;34m🌀🌀🌀 tail -f $output_path to see output 🌀🌀🌀\033[0m"
 
+cleanup() {
+  echo "Received SIGINT, deleting $output_path" 
+  echo "rm $output_path"
+  rm $output_path
+}
+trap cleanup INT
+
 for dir in */; do
   dir=$(basename "$dir")
   echo -e "\033[0;34m🌀🌀🌀 Testing $dir with Maelstrom... 🌀🌀🌀\033[0m"
