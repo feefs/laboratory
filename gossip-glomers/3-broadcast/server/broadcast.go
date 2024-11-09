@@ -28,12 +28,16 @@ func (s *server) BroadcastHandler(msg maelstrom.Message) error {
 
 	if s.node.ID() == "n0" {
 		for _, id := range s.node.NodeIDs() {
+			// if this request is a propagation from another node,
+			// avoid propagating the message back to it
 			if id == "n0" || (msg.Src[0] == 'n' && id == msg.Src) {
 				continue
 			}
 			go s.retryBroadcast(id, reqBody.Message)
 		}
 	} else {
+		// if this request came from a client,
+		// send a propagation request to n0
 		if msg.Src[0] == 'c' {
 			go s.retryBroadcast("n0", reqBody.Message)
 		}
