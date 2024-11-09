@@ -26,26 +26,34 @@ func (s *server) BroadcastHandler(msg maelstrom.Message) error {
 
 	s.messagesChan <- reqBody.Message
 
-	if msg.Src[0] == 'c' {
+	if s.node.ID() == "n0" {
 		for _, id := range s.node.NodeIDs() {
-			if id == s.node.ID() {
+			if id == "n0" || (msg.Src[0] == 'n' && id == msg.Src) {
 				continue
 			}
-			go func() {
-				for {
-					ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-					defer cancel()
-					_, err := s.node.SyncRPC(ctx, id, &BroadcastReqBody{
-						MessageBody: maelstrom.MessageBody{Type: "broadcast"},
-						Message:     reqBody.Message,
-					})
-					if err == nil {
-						break
-					}
-				}
-			}()
+			go s.retryBroadcast(id, reqBody.Message)
+		}
+	} else {
+		if msg.Src[0] == 'c' {
+			go s.retryBroadcast("n0", reqBody.Message)
 		}
 	}
 
 	return s.node.Reply(msg, &maelstrom.MessageBody{Type: "broadcast_ok"})
+}
+
+func (s *server) retryBroadcast(id string, message int) {
+	timeout := 1 * time.Second
+	for {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		_, err := s.node.SyncRPC(ctx, id, &BroadcastReqBody{
+			MessageBody: maelstrom.MessageBody{Type: "broadcast"},
+			Message:     message,
+		})
+		if err == nil {
+			break
+		}
+		timeout += (250 * time.Millisecond)
+	}
 }
