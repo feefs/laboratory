@@ -1,10 +1,8 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
-	"time"
 
 	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
 )
@@ -24,40 +22,15 @@ func (s *server) BroadcastHandler(msg maelstrom.Message) error {
 		return err
 	}
 
-	s.messagesChan <- reqBody.Message
+	s.mp.messagesChan <- reqBody.Message
 
 	if s.node.ID() == "n0" {
-		for _, id := range s.node.NodeIDs() {
-			// if this request is a propagation from another node,
-			// avoid propagating the message back to it
-			if id == "n0" || (msg.Src[0] == 'n' && id == msg.Src) {
-				continue
-			}
-			go s.retryBroadcast(id, reqBody.Message)
-		}
+		s.pp.propagationChan <- propagation{msg.Src, reqBody.Message}
 	} else {
-		// if this request came from a client,
-		// send a propagation request to n0
 		if msg.Src[0] == 'c' {
-			go s.retryBroadcast("n0", reqBody.Message)
+			go s.resilientRpc("n0", &BroadcastReqBody{maelstrom.MessageBody{Type: "broadcast"}, reqBody.Message})
 		}
 	}
 
 	return s.node.Reply(msg, &maelstrom.MessageBody{Type: "broadcast_ok"})
-}
-
-func (s *server) retryBroadcast(id string, message int) {
-	timeout := 1 * time.Second
-	for {
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
-		_, err := s.node.SyncRPC(ctx, id, &BroadcastReqBody{
-			MessageBody: maelstrom.MessageBody{Type: "broadcast"},
-			Message:     message,
-		})
-		if err == nil {
-			break
-		}
-		timeout += (250 * time.Millisecond)
-	}
 }

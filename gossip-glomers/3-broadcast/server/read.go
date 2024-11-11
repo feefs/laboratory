@@ -8,11 +8,11 @@ type ReadRespBody struct {
 }
 
 func (s *server) ReadHandler(msg maelstrom.Message) error {
-	s.prepareReadMessagesChan <- struct{}{}
+	s.mp.prepareReadMessagesChan <- struct{}{}
 
 	respBody := &ReadRespBody{
 		MessageBody: maelstrom.MessageBody{Type: "read_ok"},
-		Messages:    <-s.readMessagesChan,
+		Messages:    <-s.mp.readMessagesChan,
 	}
 
 	return s.node.Reply(msg, respBody)

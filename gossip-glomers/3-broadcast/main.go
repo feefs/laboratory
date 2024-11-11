@@ -10,9 +10,11 @@ func main() {
 	node := maelstrom.NewNode()
 	server := server.NewServer(node)
 
-	node.Handle("broadcast", server.BroadcastHandler)
-	node.Handle("read", server.ReadHandler)
+	node.Handle("init", server.InitHandler)
 	node.Handle("topology", server.TopologyHandler)
+	node.Handle("broadcast", server.BroadcastHandler)
+	node.Handle("propagate", server.PropagateHandler)
+	node.Handle("read", server.ReadHandler)
 
 	if err := node.Run(); err != nil {
 		panic(err)

@@ -12,15 +12,19 @@ test3c: build
 test3d: build
 	~/.maelstrom/maelstrom test --workload broadcast --bin $(CURDIR)/broadcast --node-count 25\
 		--time-limit 20 --rate 100 --latency 100
-test3dnem: build
+test3dNem: build
 	~/.maelstrom/maelstrom test --workload broadcast --bin $(CURDIR)/broadcast --node-count 25\
 		--time-limit 20 --rate 100 --latency 100 --nemesis partition
+test3e: test3d
+test3eNem: test3dNem
 test:
 	$(MAKE) test3a
 	$(MAKE) test3b
 	$(MAKE) test3c
 	$(MAKE) test3d
-	$(MAKE) test3dnem
+	$(MAKE) test3dNem
+	$(MAKE) test3e
+	$(MAKE) test3eNem
 debug:
 	~/.maelstrom/maelstrom serve
 clean:

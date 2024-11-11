@@ -1,33 +1,57 @@
 package server
 
-import maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+import (
+	"context"
+	"time"
+
+	maelstrom "github.com/jepsen-io/maelstrom/demo/go"
+)
 
 type server struct {
-	node                    *maelstrom.Node
+	node *maelstrom.Node
+	mp   *messageProcessing
+	pp   *propagationProcessing
+}
+
+type messageProcessing struct {
 	messages                []int
-	messagesChan            chan<- int
-	prepareReadMessagesChan chan<- struct{}
-	readMessagesChan        <-chan []int
+	messagesChan            chan int
+	prepareReadMessagesChan chan struct{}
+	readMessagesChan        chan []int
+}
+
+type propagation struct {
+	srcID   string
+	message int
+}
+
+type propagationProcessing struct {
+	propagationChan chan propagation
+	propagations    []propagation
+}
+
+func (s *server) resilientRpc(id string, body any) {
+	timeout := 1 * time.Second
+	for {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		if _, err := s.node.SyncRPC(ctx, id, body); err == nil {
+			break
+		}
+	}
 }
 
 func NewServer(node *maelstrom.Node) *server {
-	messages := []int{}
-	messagesChan := make(chan int)
-	prepareReadMessagesChan := make(chan struct{})
-	readMessagesChan := make(chan []int)
-
-	go func() {
-		for {
-			select {
-			case msg := <-messagesChan:
-				messages = append(messages, msg)
-			case <-prepareReadMessagesChan:
-				resp := make([]int, len(messages))
-				copy(resp, messages)
-				readMessagesChan <- resp
-			}
-		}
-	}()
-
-	return &server{node, messages, messagesChan, prepareReadMessagesChan, readMessagesChan}
+	return &server{
+		node,
+		&messageProcessing{
+			messages:                []int{},
+			messagesChan:            make(chan int),
+			prepareReadMessagesChan: make(chan struct{}),
+			readMessagesChan:        make(chan []int),
+		},
+		&propagationProcessing{
+			propagationChan: make(chan propagation),
+		},
+	}
 }
