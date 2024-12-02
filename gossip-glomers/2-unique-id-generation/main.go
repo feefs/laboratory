@@ -43,28 +43,19 @@ func uuidV7(id int64) string {
 func main() {
 	node := maelstrom.NewNode()
 
-	ids := make(chan string) // unbuffered channel
-	generating := false
+	var id int64
 	node.Handle("init", func(msg maelstrom.Message) error {
-		if generating {
-			return nil
-		}
 		intIdStr := node.ID()[1:]
-		intId, err := strconv.ParseInt(intIdStr, 10, 64)
+		parsedId, err := strconv.ParseInt(intIdStr, 10, 64)
 		if err != nil {
 			return err
 		}
-		go func() {
-			for {
-				ids <- uuidV7(intId)
-			}
-		}()
-		generating = true
+		id = parsedId
 		return node.Reply(msg, maelstrom.MessageBody{Type: "init_ok"})
 	})
 
 	node.Handle("generate", func(msg maelstrom.Message) error {
-		return node.Reply(msg, &GenerateRespBody{maelstrom.MessageBody{Type: "generate_ok"}, <-ids})
+		return node.Reply(msg, &GenerateRespBody{maelstrom.MessageBody{Type: "generate_ok"}, uuidV7(id)})
 	})
 
 	if err := node.Run(); err != nil {
